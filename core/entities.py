@@ -4,6 +4,13 @@ from datetime import datetime
 
 
 @dataclass
+class Moderator:
+    tg_id: int
+    privilege_level: int
+    id: Optional[int] = None
+
+
+@dataclass
 class Member:
     full_name: str
     id: Optional[int] = None
@@ -12,18 +19,23 @@ class Member:
 
 
 @dataclass
+class Message:
+    msg_id: int
+    chat_id: int
+
+
+@dataclass
 class Event:
     title: str
     location: str
     deadline: datetime
     maintainer: Member
-    msg_id: int
-    chat_id: int
     max_members: Optional[int] = None
     description: Optional[str] = None
     id: Optional[int] = None
     cost: Optional[int] = None
     members: Optional[list[Member]] = None
+    messages: Optional[list[Message]] = None
 
 
 def create_member(full_name: str, idx: int, short_name: Optional[str] = None, link: Optional[str] = None):

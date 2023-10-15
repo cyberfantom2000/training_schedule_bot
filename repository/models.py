@@ -11,9 +11,20 @@ class EventToMember(SqlOrmBase):
     event_id = Column(Integer, ForeignKey('events.id'), primary_key=True)
 
 
+class Moderator(SqlOrmBase):
+    __tablename__ = 'moderators'
+    id = Column(BigInteger, primary_key=True)
+    tg_id = Column(BigInteger, nullable=False)
+    full_name = Column(String, nullable=False)
+    short_name = Column(String)
+    link = Column(String)
+    privilege_level = Column(Integer, nullable=False)
+
+
 class Member(SqlOrmBase):
     __tablename__ = 'members'
-    id = Column(BigInteger, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    tg_id = Column(BigInteger, nullable=False)
     full_name = Column(String, nullable=False)
     short_name = Column(String)
     link = Column(String)
@@ -34,6 +45,9 @@ class Event(SqlOrmBase):
     id = Column(Integer, primary_key=True)
     location = Column(String, nullable=False)
     deadline = Column(DateTime, nullable=False)
+    title = Column(String)
+    max_members = Column(Integer)
+    description = Column(String)
     cost = Column(BigInteger)
     message_id = Column(Integer, ForeignKey('messages.id'))
     message = relationship('TelegramMessage', back_populates='event')
