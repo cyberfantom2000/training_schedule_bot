@@ -21,8 +21,8 @@ class BaseRepository:
         query = self.session.query(orm_type).filter(or_(*filters))
         return [i for i in query]
 
-    def remove(self, orm_type, orm_id) -> None:
-        orm = self.session.query(orm_type).filter(orm_type.id == orm_id).first()
-        if orm:
+    def remove(self, orm_type, filters=()) -> None:
+        orms = self.session.query(orm_type).filter(or_(*filters))
+        for orm in orms:
             self.session.delete(orm)
             self.session.commit()
