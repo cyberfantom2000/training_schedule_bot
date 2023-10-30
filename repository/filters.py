@@ -1,10 +1,8 @@
-from models import Member
+from models import Member, Event, TelegramMessage
 from sqlalchemy import or_, and_
 
-# TODO add base class filter by id
 
-
-class MemberFilter:
+class IdFilter:
     def __int__(self, filters: dict):
         self.ids = []
         self.tg_ids = []
@@ -12,6 +10,12 @@ class MemberFilter:
             self.ids.append(filters['id'])
         if 'ids' in filters:
             self.ids.append(i for i in filters['ids'])
+
+
+class MemberFilter(IdFilter):
+    def __int__(self, filters: dict):
+        IdFilter.__int__(self, filters)
+
         if 'tg_id' in filters:
             self.tg_ids.append(filters['tg_id'])
         if 'tg_ids' in filters:
@@ -20,18 +24,32 @@ class MemberFilter:
     def get(self) -> list:
         filters = []
         if self.ids:
-            filters.append(or_(*self.ids))
+            filters.append(or_(Member.id == i) for i in self.ids)
         if self.tg_ids:
-            filters.append(or_(*self.tg_ids))
+            filters.append(or_(Member.tg_id == i) for i in self.tg_ids)
 
         return and_(*filters)
 
 
-class EventFilter:
-    def __int__(self):
-        self.ids = []
+class EventFilter(IdFilter):
+    def __int__(self, filters: dict):
+        IdFilter.__int__(self, filters)
+
+    def get(self) -> list:
+        filters = []
+        if self.ids:
+            filters.append(or_(Event.id == i) for i in self.ids)
+
+        return and_(*filters)
 
 
-class MessageFilters:
-    def __init__(self):
-        self.ids = []
+class MessageFilters(IdFilter):
+    def __int__(self, filters: dict):
+        IdFilter.__int__(self, filters)
+
+    def get(self) -> list:
+        filters = []
+        if self.ids:
+            filters.append(or_(TelegramMessage.id == i) for i in self.ids)
+
+        return and_(*filters)
