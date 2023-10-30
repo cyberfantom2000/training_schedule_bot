@@ -2,18 +2,16 @@ from dataclasses import dataclass
 from typing import Optional
 from datetime import datetime
 
-COMMON, MODERATOR, ADMINISTRATOR = range(0, 3)
-
 
 @dataclass
 class Member:
     tg_id: int
     full_name: str
-    privilege_level: int = COMMON
     id: Optional[int] = None
     short_name: Optional[str] = None
     link: Optional[str] = None
     events_ids: Optional[list[int]] = None
+    administered_event_ids: Optional[list[int]] = None
 
 
 @dataclass
@@ -34,4 +32,6 @@ class Event:
     id: Optional[int] = None
     cost: Optional[int] = None
     members: Optional[list[Member]] = None
+    admins: Optional[list[Member]] = None
     messages: Optional[list[Message]] = None
+

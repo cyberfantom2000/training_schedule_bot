@@ -5,9 +5,15 @@ from sqlalchemy.orm import relationship
 SqlOrmBase = declarative_base()
 
 
-class EventToMember(SqlOrmBase):
-    __tablename__ = 'eventtomember'
+class EventMembers(SqlOrmBase):
+    __tablename__ = 'eventmembers'
     member_id = Column(Integer, ForeignKey('members.id'), primary_key=True)
+    event_id = Column(Integer, ForeignKey('events.id'), primary_key=True)
+
+
+class EventAdmins(SqlOrmBase):
+    __tablename__ = 'eventadmins'
+    admin_id = Column(Integer, ForeignKey('members.id'), primary_key=True)
     event_id = Column(Integer, ForeignKey('events.id'), primary_key=True)
 
 
@@ -18,8 +24,8 @@ class Member(SqlOrmBase):
     full_name = Column(String, nullable=False)
     short_name = Column(String)
     link = Column(String)
-    events = relationship('Event', secondary='eventtomember')
-    privilege_level = Column(Integer, nullable=False)
+    events = relationship('Event', secondary='eventmembers')
+    administered_events = relationship('Event', secondary='eventadmins')
 
 
 class TelegramMessage(SqlOrmBase):
@@ -42,4 +48,5 @@ class Event(SqlOrmBase):
     cost = Column(BigInteger)
     message_id = Column(Integer, ForeignKey('messages.id'))
     messages = relationship('TelegramMessage', back_populates='event')
-    members = relationship('Member', secondary='eventtomember')
+    members = relationship('Member', secondary='eventmembers')
+    admins = relationship('Member', secondary='eventadmins')

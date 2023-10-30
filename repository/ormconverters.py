@@ -14,14 +14,16 @@ def message_from_orm(orm: OrmMessage) -> Message:
 
 def member_to_orm(member: Member, repository) -> OrmMember:
     events = repository.get(OrmEvent, [OrmEvent.id == idx for idx in member.events_ids])
+    administered_events = repository.get(OrmEvent, [OrmEvent.id == idx for idx in member.administered_event_ids])
     return OrmMember(id=member.id, tg_id=member.tg_id, full_name=member.full_name,
-                     link=member.link, short_name=member.short_name,
-                     privilege_level=member.privilege_level, events=events)
+                     link=member.link, short_name=member.short_name, events=events,
+                     administered_events=administered_events)
 
 
 def member_from_orm(orm: OrmMember) -> Member:
     return Member(id=orm.id, tg_id=orm.tg_id, full_name=orm.full_name,
-                  short_name=orm.short_name, link=orm.link, privilege_level=orm.privilege_level,
+                  short_name=orm.short_name, link=orm.link,
+                  administered_event_ids=[event.id for event in orm.administered_events],
                   events_ids=[event.id for event in orm.events])
 
 
@@ -30,7 +32,8 @@ def event_to_orm(event: Event, repository) -> OrmEvent:
                     title=event.title, max_members=event.max_members,
                     description=event.description, cost=event.cost,
                     messages=[message_to_orm(message, repository) for message in event.messages],
-                    members=[member_to_orm(member, repository) for member in event.members])
+                    members=[member_to_orm(member, repository) for member in event.members],
+                    admins=[member_to_orm(admin, repository) for admin in event.admins])
 
 
 def event_from_orm(orm: OrmEvent) -> Event:
@@ -39,4 +42,5 @@ def event_from_orm(orm: OrmEvent) -> Event:
                  description=orm.description, cost=orm.cost,
                  maintainer=member_from_orm(orm.maintainer),
                  messages=[message_from_orm(message) for message in orm.messages],
-                 members=[member_from_orm(member) for member in orm.members])
+                 members=[member_from_orm(member) for member in orm.members],
+                 admins=[member_from_orm(admin) for admin in orm.admins])
