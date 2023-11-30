@@ -1,9 +1,9 @@
-from models import Member, Event, TelegramMessage
+from repository.models import Member, Event, TelegramMessage
 from sqlalchemy import or_, and_
 
 
 class IdFilter:
-    def __int__(self, filters: dict):
+    def __init__(self, filters: dict):
         self.ids = []
         self.tg_ids = []
         if 'id' in filters:
@@ -13,8 +13,8 @@ class IdFilter:
 
 
 class MemberFilter(IdFilter):
-    def __int__(self, filters: dict):
-        IdFilter.__int__(self, filters)
+    def __init__(self, filters: dict):
+        IdFilter.__init__(self, filters)
 
         if 'tg_id' in filters:
             self.tg_ids.append(filters['tg_id'])
@@ -24,32 +24,32 @@ class MemberFilter(IdFilter):
     def get(self) -> list:
         filters = []
         if self.ids:
-            filters.append(or_(Member.id == i) for i in self.ids)
+            filters.append(Member.tg_id.in_(self.ids))
         if self.tg_ids:
-            filters.append(or_(Member.tg_id == i) for i in self.tg_ids)
+            filters.append(Member.tg_id.in_(self.tg_ids))
 
-        return and_(*filters)
+        return filters
 
 
 class EventFilter(IdFilter):
-    def __int__(self, filters: dict):
-        IdFilter.__int__(self, filters)
+    def __init__(self, filters: dict):
+        IdFilter.__init__(self, filters)
 
     def get(self) -> list:
         filters = []
         if self.ids:
-            filters.append(or_(Event.id == i) for i in self.ids)
+            filters.append(Event.id.in_(self.ids))
 
-        return and_(*filters)
+        return filters
 
 
 class MessageFilters(IdFilter):
-    def __int__(self, filters: dict):
-        IdFilter.__int__(self, filters)
+    def __init__(self, filters: dict):
+        IdFilter.__init__(self, filters)
 
     def get(self) -> list:
         filters = []
         if self.ids:
-            filters.append(or_(TelegramMessage.id == i) for i in self.ids)
+            filters.append(TelegramMessage.id.in_(self.ids))
 
-        return and_(*filters)
+        return filters

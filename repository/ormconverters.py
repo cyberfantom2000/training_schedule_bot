@@ -4,7 +4,7 @@ from repository.models import Event as OrmEvent
 from repository.models import TelegramMessage as OrmMessage
 
 
-def message_to_orm(message: Message, repository) -> OrmMessage:
+def message_to_orm(message: Message, _=None) -> OrmMessage:
     return OrmMessage(id=message.id, msg_id=message.msg_id, chat_id=message.chat_id)
 
 
@@ -13,8 +13,9 @@ def message_from_orm(orm: OrmMessage) -> Message:
 
 
 def member_to_orm(member: Member, repository) -> OrmMember:
-    events = repository.get(OrmEvent, [OrmEvent.id == idx for idx in member.events_ids])
-    administered_events = repository.get(OrmEvent, [OrmEvent.id == idx for idx in member.administered_event_ids])
+    events = __orm_events_or_empty(repository, member.events_ids)
+    administered_events = __orm_events_or_empty(repository, member.administered_event_ids)
+
     return OrmMember(id=member.id, tg_id=member.tg_id, full_name=member.full_name,
                      link=member.link, short_name=member.short_name, events=events,
                      administered_events=administered_events)
@@ -44,3 +45,31 @@ def event_from_orm(orm: OrmEvent) -> Event:
                  messages=[message_from_orm(message) for message in orm.messages],
                  members=[member_from_orm(member) for member in orm.members],
                  admins=[member_from_orm(admin) for admin in orm.admins])
+
+
+def update_member(orm: OrmMember, member: Member, _=None) -> None:
+    orm.tg_id = member.tg_id
+    orm.full_name = member.full_name
+    orm.short_name = member.short_name
+    orm.link = member.link
+
+
+def update_event(orm: OrmEvent, event: Event, repository) -> None:
+    orm.cost = event.cost
+    orm.title = event.title
+    orm.deadline = event.deadline
+    orm.location = event.location
+    orm.max_members = event.max_members
+    orm.description = event.description
+    orm.messages = [message_to_orm(message, repository) for message in event.messages]
+    orm.members = [member_to_orm(member, repository) for member in event.members]
+    orm.admins = [member_to_orm(admin, repository) for admin in event.admins]
+
+
+def update_message(orm: OrmMessage, message: Message, _=None) -> None:
+    orm.msg_id = message.msg_id
+    orm.chat_id = message.chat_id
+
+
+def __orm_events_or_empty(repository, ids: list) -> list:
+    return repository.get(OrmEvent, [OrmEvent.id.in_(ids)]) if ids else []

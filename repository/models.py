@@ -24,8 +24,8 @@ class Member(SqlOrmBase):
     full_name = Column(String, nullable=False)
     short_name = Column(String)
     link = Column(String)
-    events = relationship('Event', secondary='eventmembers')
-    administered_events = relationship('Event', secondary='eventadmins')
+    events = relationship('Event', secondary='eventmembers', backref='members')
+    administered_events = relationship('Event', secondary='eventadmins', backref='admins')
 
 
 class TelegramMessage(SqlOrmBase):
@@ -48,5 +48,3 @@ class Event(SqlOrmBase):
     cost = Column(BigInteger)
     message_id = Column(Integer, ForeignKey('messages.id'))
     messages = relationship('TelegramMessage', back_populates='event')
-    members = relationship('Member', secondary='eventmembers')
-    admins = relationship('Member', secondary='eventadmins')

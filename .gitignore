@@ -1,9 +1,4 @@
 .idea
 __*
-certificate.json
-modes.json
-.modes
-.certificate
-logs/*
 *.db
-svn_tmp/*
+token.txt
